@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bharat Khabar</title>
+    <link rel="stylesheet" href="styles1.css">
+</head>
+<body>
+    <nav>
+        <div class="main-nav container flex">
+            <a href="#" onclick="reload()" class="company-logo">
+                <img src="image-removebg-preview.png" alt="company logo">
+            </a>
+            <div class="nav-links">
+                <ul class="flex">
+                    <li class="hover-link nav-item" id="ipl" onclick="onNavItemClick('ipl')">IPL</li>
+                    <li class="hover-link nav-item" id="finance" onclick="onNavItemClick('finance')">Finance</li>
+                    <li class="hover-link nav-item" id="politics" onclick="onNavItemClick('politics')">Politics</li>
+                </ul>
+            </div>
+            <div class="search-bar flex">
+                <input id="search-text" type="text" class="news-input" placeholder="e.g. Science">
+                <button id="search-button" class="search-button">Search</button>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="cards-container container flex" id="cards-container">
+            
+        </div>
+    </main>
+    <template id="template-news-card">
+        <div class="card">
+            <div class="card-header">
+                <img src="https://via.placeholder.com/400x200" alt="image" id="news-img">
+            </div>
+            <div class="card-content">
+                <h3 id="news-title">This is The title</h3>
+                <h6 class="news-source" id="news-source">End gadget</h6>
+                <p class="news-desc" id="news-desc">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab, cum! Fugiat nostrum iste cupiditate. Similique beatae in ullam officiis minus!</p>
+            </div>
+        </div>
+    </template>
+    
+</body>
+<script>
+const API_KEY = "d13f027f14dc4d3889dfd3b32f59e322";
+const url = "https://newsapi.org/v2/everything?q=";
+
+window.addEventListener('load', () => fetchNews("India"));
+
+async function fetchNews(query) {
+    const res = await fetch(`${url}${query}&apiKey=${API_KEY}`);
+    const data = await res.json();
+    bindData(data.articles);
+
+}
+function bindData(articles){
+    const cardContainer = document.getElementById("cards-container");
+    const newsCardTemplate = document.getElementById("template-news-card");
+
+    cardContainer.innerHTML = "";
+
+    articles.forEach((article) => {
+        if (!article.urlToImage) return;
+        const cardClone = newsCardTemplate.content.cloneNode(true);
+        fillDataInCard(cardClone, article);
+        cardContainer.appendChild(cardClone);
+    });
+}
+
+function fillDataInCard(cardClone, article){
+    const newsImg = cardClone.querySelector('#news-img');
+    const newsTitle = cardClone.querySelector('#news-title');
+    const newsSource= cardClone.querySelector('#news-source');
+    const newsDesc = cardClone.querySelector('#news-desc');
+
+    newsImg.src = article.urlToImage;
+    newsTitle.innerHTML = article.title;
+    newsDesc.innerHTML = article.description;
+
+    const date = new Date(article.publishedAt).toLocaleString("en-US", {
+        timeZone: "Asia/Jakarta"
+    });
+
+    newsSource.innerHTML = `${article.source.name} - ${date}`;
+    cardClone.firstElementChild.addEventListener('click', () => {
+        window.open(article.url, "blank")
+    });
+
+};
+function onNavItemClick(id) {
+    fetchNews(id);
+};
+</script>
+</html>
